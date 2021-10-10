@@ -18,8 +18,40 @@ const upload = multer({
 
 //all books
 router.get('/', async (req, res) => {
+  let query = Book.find();
+
+  //this is used to search through the MongoDB with the title a user entered
+  //use the regex method to search through the DB
+  if (
+    req.query.title != null &&
+    req.query.title != '' &&
+    req.query.title != undefined
+  ) {
+    console.log(req.query.title);
+    query = query.regex('title', new RegExp(req.query.title, 'i'));
+  }
+
+  //this is used to search through the MongoDB with the date a user entered
+  //the lte method searches the DB for a value that is <= to the date, gte method is just >=
+  if (
+    req.query.publishedBefore != null &&
+    req.query.publishedBefore != '' &&
+    req.query.publishedBefore != undefined
+  ) {
+    query = query.lte('publishDate', req.query.publishedBefore);
+    console.log(req.query.publishedBefore);
+  }
+  if (
+    req.query.publishedAfter != null &&
+    req.query.publishedAfter != '' &&
+    req.query.publishedAfter != undefined
+  ) {
+    console.log(req.query.publishedAfter);
+    query = query.gte('publishDate', req.query.publishedAfter);
+  }
+
   try {
-    const books = await Book.find({});
+    const books = await query.exec();
     res.render('books/index', {
       books: books,
       searchOptions: req.query,
