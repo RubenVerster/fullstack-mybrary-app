@@ -23,7 +23,11 @@ const bookSchema = new mongoose.Schema({
     default: Date.now,
     required: true,
   },
-  coverImageName: {
+  coverImage: {
+    type: Buffer,
+    required: true,
+  },
+  coverImageType: {
     type: String,
     required: true,
   },
@@ -34,9 +38,12 @@ const bookSchema = new mongoose.Schema({
   },
 });
 
+//using normal function to have access to the this property
 bookSchema.virtual('coverImagePath').get(function () {
-  if (this.coverImageName != null) {
-    return path.join('/', coverImageBasePath, this.coverImageName);
+  if (this.coverImage != null && this.coverImageType != null) {
+    return `data:${
+      this.coverImageType
+    };charset=utf-8;base64,${this.coverImage.toString('base64')}`;
   }
 });
 
